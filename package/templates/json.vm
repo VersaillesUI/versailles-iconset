@@ -1,0 +1,5 @@
+[<% _.each(glyphs, function(glyph, index) { %><%= index > 0 ? "," : "" %>
+  {
+    "type": "<%= glyph.name %>"
+  }<% }); %>
+]

@@ -1,0 +1,15 @@
+import React from 'react'
+
+window.Iconset = window.Iconset || {}
+
+function createSvgIcon (svg) {
+  return function (props) {
+    return <span {...props} style={{ display: 'inline-flex', ...props.style }} dangerouslySetInnerHTML={{ __html: svg }}></span>
+  }
+}
+
+<% _.each(data, function(item) { %>
+window.Iconset['<%= item.exportName %>'] = createSvgIcon(
+  `<%=item.content %>`
+)
+<% }) %>
