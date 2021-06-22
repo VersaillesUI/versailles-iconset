@@ -11,11 +11,12 @@ export default (req, res) => {
 
   db.serialize(() => {
     if (name) {
-      db.get(`SELECT ID, PROJECT_NAME, ICONSET_NAME, CREATE_TIME FROM PROJECTS WHERE ICONSET_NAME="${name}"`, (err, row) => {
+      db.get(`SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, CREATE_TIME FROM ICONSETS WHERE ALIAS_NAME="${name}"`, (err, row) => {
         db.close()
         if(err) {
           res.json({
-            success: false
+            success: false,
+            data: err
           })
           return
         }
@@ -25,11 +26,12 @@ export default (req, res) => {
         })
       })
     } else {
-      db.all("SELECT ID, PROJECT_NAME, ICONSET_NAME, CREATE_TIME FROM PROJECTS", function (err, rows) {
+      db.all("SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, CREATE_TIME FROM ICONSETS", function (err, rows) {
         db.close()
         if(err) {
           res.json({
-            success: false
+            success: false,
+            data: err
           })
           return
         }

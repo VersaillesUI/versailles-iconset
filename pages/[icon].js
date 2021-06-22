@@ -29,6 +29,10 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Layout from '../src/layout'
 import SvgIcon from '../src/components/SvgIcon'
+import Badge from '@material-ui/core/Badge'
+import PaletteIcon from '@material-ui/icons/Palette'
+import Popover from '@material-ui/core/Popover'
+import { SketchPicker } from 'react-color'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -80,14 +84,20 @@ const useStyles = makeStyles((theme) => {
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 2,
-      borderColor: 'transparent',
+      borderColor: 'rgba(0, 0, 0, 0.03)',
       transition: '0.2s',
       transitionProperty: 'borderColor, transform, box-shadow',
       cursor: 'pointer',
       '&:hover': {
         transform: 'translate(0, -2px)',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+        borderColor: 'rgba(0, 0, 0, 0)'
       }
+    },
+    selectedImageItem: {
+      transform: 'translate(0, 0)',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+      borderColor: 'rgba(0, 0, 0, 0)'
     },
     image: {
       margin: theme.spacing(2)
@@ -117,10 +127,6 @@ const useStyles = makeStyles((theme) => {
       minHeight: 24,
       margin: theme.spacing(0, 0.5)
     },
-    selectedImageItem: {
-      transform: 'translate(0, 0)',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
-    },
     title: {
       marginBottom: theme.spacing(1.5),
       display: 'block'
@@ -134,29 +140,34 @@ let uploadTasks = {
   error: 0
 }
 
+const defaultColor = '#000'
+
 function Home (props) {
-  const { cookie, iconsets, current } = props
+  const { cookie, iconsets: _iconsets, current } = props
   const classes = useStyles()
-  const [project] = React.useState(current.data)
-  const [projects, setProjects] = React.useState(iconsets.data || [])
+  const [iconset] = React.useState(current.data)
+  const [iconsets] = React.useState(_iconsets.data || [])
   const [sourceType, setSourceType] = React.useState('react')
-  const [iconsetName, setIconsetName] = React.useState(current.data.iconsetName)
+  const [aliasName] = React.useState(current.data.aliasName)
   const [images, setImages] = React.useState([])
   const [width, setWidth] = React.useState(40)
   const [image, setImage] = React.useState(null)
   const [imageCopy, setImageCopy] = React.useState(null)
   const [alertData, setAlertData] = React.useState({ open: false })
   const [searchValue, setSearchValue] = React.useState('')
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [showPalette, setShowPalette] = React.useState(false)
+  const [color, setColor] = React.useState((process.browser && sessionStorage.getItem('color')) || defaultColor)
 
   useEffect(() => {
-    if(project) {
+    if(iconset) {
       fetchImages()
     }
-  }, [project])
+  }, [iconset])
 
   const fetchImages = () => {
-    if(!project) return
-    axios.get('/api/iconset/query?id=' + project.id)
+    if(!iconset) return
+    axios.get('/api/iconset/query?id=' + iconset.id)
       .then(res => res.data)
       .then(res => {
         setImages(res.data)
@@ -179,7 +190,7 @@ function Home (props) {
     if(uploadTasks.success + uploadTasks.error === uploadTasks.total) {
       setAlertData({
         open: true,
-        message: `文件上传已完成，成功${uploadTasks.success}个，失败${uploadTasks.error}个，（如果上传的文件或文件名已存在，会标记为失败）`,
+        message: `文件上传已完成，成功${uploadTasks.success}个，失败${uploadTasks.error}个`,
         type: 'info',
         autoClose: true
       })
@@ -201,9 +212,15 @@ function Home (props) {
     uploadTasks.success += 1
     const index = images.findIndex(o => o.file === res.data.file)
     if(index > -1) {
-      images.splice(index, 1, res.data)
+      images.splice(index, 1, {
+        ...res.data,
+        isNew: true
+      })
     } else {
-      images.push(res.data)
+      images.push({
+        ...res.data,
+        isNew: true
+      })
     }
     setImages([...images])
     processUploadEnd()
@@ -216,7 +233,7 @@ function Home (props) {
   }
 
   const handleDelete = () => {
-    axios.delete(`/api/iconset/delete?id=${project.id}&file=${image.file}`)
+    axios.delete(`/api/iconset/delete?id=${iconset.id}&file=${image.file}`)
       .then(res => res.data)
       .then(res => {
         if(res.success) {
@@ -267,10 +284,10 @@ function Home (props) {
   }
 
   const handleGenerateIconFont = () => {
-    axios.get(`/api/parse/svg?id=${project.id}&fontName=${project.iconsetName}`, {
+    axios.get(`/api/parse/svg?id=${iconset.id}&fontName=${iconset.iconsetName}`, {
       responseType: 'blob'
     }).then(res => {
-      saveAs(res.data, project.iconsetName + '.zip')
+      saveAs(res.data, iconset.iconsetName + '.zip')
     }).catch(() => {
       setAlertData({
         open: true,
@@ -281,12 +298,12 @@ function Home (props) {
   }
 
   const handleRenameIconset = () => {
-    if(iconsetName === project.iconsetName) {
+    if(aliasName === iconset.aliasName) {
       return
     }
-    axios.post('/api/project/rename', {
-      id: project.id,
-      replace: iconsetName
+    axios.post('/api/iconset/rename', {
+      id: iconset.id,
+      replace: aliasName
     })
       .then(() => {
         setAlertData({
@@ -294,7 +311,7 @@ function Home (props) {
           message: '修改成功'
         })
       }).catch(() => {
-        setIconsetName(project.iconsetName)
+        setIconsetName(iconset.aliasName)
         setAlertData({
           open: true,
           message: '修改失败',
@@ -325,7 +342,7 @@ function Home (props) {
       return
     }
     axios.post('/api/iconset/rename', {
-      id: project.id,
+      id: iconset.id,
       replace: image.fileName
     })
       .then(() => {
@@ -352,9 +369,23 @@ function Home (props) {
       })
   }
 
-  const projectId = project && project.id
+  const handleShowPalette = (evt) => {
+    setAnchorEl(evt.currentTarget)
+    setShowPalette(true)
+  }
+
+  const handleClosePalette = () => {
+    setShowPalette(false)
+  }
+
+  const handleSetColor = (color) => {
+    setColor(color.hex)
+    sessionStorage.setItem('color', color.hex)
+  }
+
+  const iconsetId = iconset && iconset.id
   return (
-    <Layout cookie={cookie} project={project} projects={projects}>
+    <Layout cookie={cookie} iconset={iconset} iconsets={iconsets}>
       <div className={classes.content}>
         <Box display="flex" alignItems="center" className={classes.actions}>
           <Paper elevation={2} className={classes.paper}>
@@ -370,14 +401,19 @@ function Home (props) {
                 <Slider className={classes.slider} value={width} min={24} max={80} step={4} onChange={(evt, value) => setWidth(value)} />
                 <T className={classes.sliderText} color="primary" variant="body2">{width}</T>
               </Box>
-              <Box display="flex" alignItems="center">
+              <Box display="flex" alignItems="center" paddingRight={1}>
+                {
+                  !!iconset.isFontset && <IconButton onClick={handleShowPalette} color="primary">
+                    <PaletteIcon />
+                  </IconButton>
+                }
                 <Upload
                   onStart={handleUploadStart}
                   onError={handleUploadError}
                   onSuccess={handleUploadSuccess}
                   multiple
-                  action={`/api/iconset/upload?id=${projectId}`}
-                  accept="image/svg+xml">
+                  action={`/api/iconset/upload?id=${iconsetId}&font=${iconset.isFontset}`}
+                  accept={iconset.isFontset ? 'image/svg+xml' : 'image/svg+xml, image/png, image/jpg, image/bmp, image/gif'}>
                   <Tooltip title="上传到此图标库" aria-label="上传">
                     <IconButton color="primary">
                       <BackupIcon />
@@ -391,14 +427,33 @@ function Home (props) {
         </Box>
         <div className={classes.imageRoot}>
           {images && _.sortBy(images, 'file').filter(o => o.file.indexOf(searchValue) > -1).map(item => {
-            const project = image && (item.file === image.file)
+            const iconset = image && (item.file === image.file)
             return <Tooltip title={item.file} key={item.file}>
-              <Paper onClick={handleClickImage(item)} variant="outlined" className={clsx([classes.imageItem, project && classes.selectedImageItem])}>
-                <SvgIcon style={{
-                  fontSize: width,
-                  padding: width / 5
-                }} className={classes.image} content={item.content} />
-              </Paper>
+              {
+                item.isNew ?
+                  <Paper onClick={handleClickImage(item)} variant="outlined" className={clsx([classes.imageItem, iconset && classes.selectedImageItem])}>
+                    <Badge anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                      badgeContent="new"
+                      color="secondary"
+                      component="div">
+                      <SvgIcon style={{
+                        fontSize: width,
+                        padding: width / 5,
+                        color
+                      }} className={classes.image} content={item.content} />
+                    </Badge>
+                  </Paper>
+                  : <Paper onClick={handleClickImage(item)} variant="outlined" className={clsx([classes.imageItem, iconset && classes.selectedImageItem])}>
+                    <SvgIcon style={{
+                      fontSize: width,
+                      padding: width / 5,
+                      color
+                    }} className={classes.image} content={item.content} />
+                  </Paper>
+              }
             </Tooltip>
           })}
         </div>
@@ -426,7 +481,7 @@ function Home (props) {
           <Box flexGrow={1}>
             <T variant="body2" className={classes.title}>文件预览</T>
             <Paper variant="outlined" className={classes.previewItem} style={{ margin: 0 }}>
-              <img style={{ padding: 25, width: 100, height: 100 }} src={`/api/iconset/image?id=${projectId}&file=${image.file}`} />
+              <img style={{ padding: 25, width: 100, height: 100 }} src={`/api/iconset/image?id=${iconsetId}&file=${image.file}`} />
             </Paper>
           </Box>
           <br />
@@ -448,12 +503,12 @@ function Home (props) {
             </Tooltip>
           </Box>
         </div> : (
-          !!project && <div className={classes.propertyPanel}>
+          !!iconset && <div className={classes.propertyPanel}>
             <TextField
               fullWidth
-              label="图标集命名"
+              label="图标库命名"
               defaultValue=" "
-              value={iconsetName}
+              value={iconset.iconsetName}
               className={classes.textField}
               onChange={handleChangeIconsetName}
               onBlur={handleRenameIconset}
@@ -461,8 +516,8 @@ function Home (props) {
             <Box>
               <T variant="body2" className={classes.title}>文件信息</T>
               <Box marginTop={-0.5}>
-                <Info label="项目名称">{project.projectName}</Info>
-                <Info label="创建时间">{moment(project.createTime).format('YYYY年MM月DD日')}</Info>
+                <Info label="图标库名">{iconset.iconsetName}</Info>
+                <Info label="创建时间">{moment(iconset.createTime).format('YYYY年MM月DD日')}</Info>
                 <Info label="图标数量">{images.length}</Info>
               </Box>
             </Box>
@@ -481,7 +536,7 @@ function Home (props) {
                   background: `rgba(0, 0, 0, 0.06)`,
                   wordBreak: 'break-all'
                 }}>
-                  {process.browser && `${window.location.origin}/api/iconset/${project.iconsetName}.min.js?type=${sourceType}`}
+                  {process.browser && `${window.location.origin}/api/iconset/${iconset.aliasName}.min.js?type=${sourceType}`}
                 </Box>
               </Paper>
             </Box>
@@ -496,19 +551,36 @@ function Home (props) {
           </div>
         )
       }
-      <Snackbar open={alertData.open} autoHideDuration={alertData.autoClose ? 3000 : null} onClose={handleCloseSnackbar}>
+      <Snackbar open={alertData.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
         <Alert severity={alertData.type || 'success'} onClose={handleCloseSnackbar}>
           {alertData.message}
         </Alert>
       </Snackbar>
+      <Popover
+        anchorEl={anchorEl}
+        open={showPalette}
+        onClose={handleClosePalette}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+      >
+        <Box p={2}>
+          <SketchPicker color={color} onChange={handleSetColor} />
+        </Box>
+      </Popover>
     </Layout>
   )
 }
 
 Home.getInitialProps = async ({ req, query }) => {
   const icon = query.icon
-  const iconsets = await axios.get(`http://${req.headers.host}/api/project/query`).then(res => res.data)
-  const current = await axios.get(`http://${req.headers.host}/api/project/query?name=${icon}`).then(res => res.data)
+  const iconsets = await axios.get(`http://${req.headers.host}/api/iconsets/query`).then(res => res.data)
+  const current = await axios.get(`http://${req.headers.host}/api/iconsets/query?name=${icon}`).then(res => res.data)
   return { current, iconsets, cookie: req.headers.cookie }
 }
 

@@ -62,8 +62,8 @@ const useStyles = makeStyles((theme) => {
 })
 
 function Page (props) {
+  const { iconsets, cookie } = props
   const classes = useStyles()
-  const {cookie} = props
   const [icons, setIcons] = React.useState([])
 
   const fetchItem = async (item) => {
@@ -72,27 +72,29 @@ function Page (props) {
 
   React.useEffect(() => {
     const result = []
-    Promise.all(
-      props.iconsets.map((item, index) => {
-        return new Promise((resolve) => {
-          fetchItem(item).then(res => {
-            result[index] = res
-            resolve()
+    if(iconsets) {
+      Promise.all(
+        iconsets.map((item, index) => {
+          return new Promise((resolve) => {
+            fetchItem(item).then(res => {
+              result[index] = res
+              resolve()
+            })
           })
         })
+      ).then(() => {
+        setIcons([...result])
       })
-    ).then(() => {
-      setIcons([...result])
-    })
-  }, [props.iconsets])
+    }
+  }, [iconsets])
 
-  return <Layout cookie={cookie} project="all" projects={props.iconsets}>
+  return <Layout cookie={cookie} iconset="all" iconsets={props.iconsets}>
     <div className={classes.content}>
       <Box display="flex" flexWrap="wrap" height="auto">
         {
-          props.iconsets && props.iconsets.map((item, index) => {
+          Array.isArray(iconsets) && iconsets.map((item, index) => {
             const nicons = icons[index]
-            return <Card onClick={() => location.href = `/${item.iconsetName}`} className={classes.card} key={item.id}>
+            return <Card onClick={() => location.href = `/${item.aliasName}`} className={classes.card} key={item.id}>
               <CardContent className={classes.cardContent}>
                 <Box display="flex" flexWrap="wrap">
                   {
@@ -114,7 +116,7 @@ function Page (props) {
                     <Box flexGrow={1} display="flex" alignItems="center">
                       <AccountCircleIcon />
                       &nbsp;
-                      <T variant="body1">{item.projectName} - {item.iconsetName}</T>
+                      <T variant="body1">{item.iconsetName} - {item.aliasName}</T>
                     </Box>
                     <Box>
                       <T variant="button">
@@ -132,7 +134,7 @@ function Page (props) {
 }
 
 Page.getInitialProps = async ({ req }) => {
-  const iconsets = await axios.get(`http://${req.headers.host}/api/project/query?children=12`).then(res => res.data.data)
+  const iconsets = await axios.get(`http://${req.headers.host}/api/iconsets/query?children=12`).then(res => res.data.data)
   return { cookie: req.headers.cookie, iconsets }
 }
 

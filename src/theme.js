@@ -18,6 +18,11 @@ const theme = createMuiTheme({
     },
   },
   overrides: {
+    MuiBadge: {
+      root: {
+        verticalAlign: 'top'
+      }
+    },
     MuiListItemIcon: {
       root: {
         minWidth: 36

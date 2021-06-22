@@ -8,26 +8,29 @@ function init () {
       return
     }
 
-    const CREATE_PROJECT_TABLE = `CREATE TABLE PROJECTS (
+    const CREATE_PROJECT_TABLE = `CREATE TABLE ICONSETS (
       ID TEXT PRIMARY KEY,
-      PROJECT_NAME CHAR(50) NOT NULL,
-      ICONSET_NAME CHAR(50) PRIMARY KEY,
+      ICONSET_NAME CHAR(50),
+      ALIAS_NAME CHAR(50),
       USER_ID CHAR(50) NOT NULL,
+      IS_FONTSET INT NOT NULL,
       CREATE_TIME BIGINT NOT NULL,
       UPDATE_TIME BIGINT,
       DELETE_TIME BIGINT
     )`
 
     const CREATE_USER_TABLE = `CREATE TABLE USERS (
-      ID TEXT PRIMARY KEY,
-      USER_NAME CHAR(50) NOT NULL,
+      ID PRIMARY KEY,
+      USER_NAME CHAR(50),
       USER_TYPE CHAT(10),
+      PASSWORD CHAR(50),
+      EMAIL CHAR(100),
       JOIN_TIME BIGINT
     )`
 
     const createProjectTable = new Promise((resolve, reject) => {
       db.serialize(function() {
-        db.run('DROP TABLE PROJECTS', () => {
+        db.run('DROP TABLE ICONSETS', () => {
           db.run(CREATE_PROJECT_TABLE, (result, err) => {
             if (err) {
               console.log('create project table error', err)

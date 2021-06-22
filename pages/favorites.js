@@ -2,7 +2,7 @@ import React from 'react'
 import Layout from '../src/layout'
 
 function Page (props) {
-  return <Layout cookie={props.cookie} project="favorites">
+  return <Layout cookie={props.cookie} iconset="favorites">
 
   </Layout>
 }

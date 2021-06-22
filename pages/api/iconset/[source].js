@@ -16,7 +16,7 @@ export default (req, res) => {
   const db = new sqlite3.Database(path.resolve(process.cwd(), 'dir/database/iconset.db'))
 
   db.serialize(() => {
-    db.get(`SELECT ID FROM PROJECTS WHERE ICONSET_NAME="${icon}"`, function (err, row) {
+    db.get(`SELECT ID FROM ICONSETS WHERE ALIAS_NAME="${icon}"`, function (err, row) {
       db.close()
       if(err) {
         res.json({

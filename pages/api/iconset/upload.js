@@ -7,7 +7,7 @@ function resolvePath(...paths) {
   return path.resolve(process.cwd(), ...paths)
 }
 
-const post = async (req, res, id) => {
+const post = async (req, res, id, font) => {
   const dir = resolvePath('dir/iconset', id)
   const form = new formidable.IncomingForm({
     multiples: true
@@ -23,7 +23,7 @@ const post = async (req, res, id) => {
       })
     }
     
-    const next = await saveFile(content, id, part)
+    const next = await saveFile(content, id, part, font)
     if(next) {
       const filename = part.filename
       const stat = fs.statSync(path.join(dir, filename))
@@ -33,6 +33,7 @@ const post = async (req, res, id) => {
           file: filename,
           fileName: filename.replace(/\.[a-z0-9_-]*$/, ''),
           ext: path.extname(filename),
+          content: fs.readFileSync(path.join(dir, filename)).toString('utf-8'),
           stat: {
             size: stat.size,
             atime: stat.atime,
@@ -119,10 +120,9 @@ const optimizeSvg = (content) => {
   })
 }
 
-const saveFile = async (content, id, part) => {
+const saveFile = async (content, id, part, font) => {
   try {
-    const optmized = optimizeSvg(content.toString('utf-8'))
-    const data = Buffer.from(optmized.data)
+    const data = font === '1' ? Buffer.from(optimizeSvg(content.toString('utf-8'))) : content
     const dir = resolvePath('dir/iconset', id)
     const filename = part.filename
 
@@ -150,8 +150,8 @@ const saveFile = async (content, id, part) => {
 
 export default (req, res) => {
   if(req.method === "POST") {
-    const { id } = req.query
-    return post(req, res, id)
+    const { id, font } = req.query
+    return post(req, res, id, font)
   }
   res.status(404).send('Not Found Method')
 }

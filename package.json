@@ -22,6 +22,7 @@
     "moment": "^2.29.1",
     "rc-upload": "^4.3.0",
     "react": "17.0.2",
+    "react-color": "^2.19.3",
     "react-dom": "17.0.2",
     "rxjs": "^7.1.0"
   },
@@ -47,6 +48,7 @@
     "gulp-plumber": "^1.2.1",
     "gulp-rename": "^2.0.0",
     "next": "10.2.3",
+    "node-fetch": "^2.6.1",
     "spdy": "^4.0.2",
     "sqlite3": "^5.0.2",
     "svgo": "^2.3.0",
