@@ -3,7 +3,10 @@ import formidable from 'formidable'
 import fs from 'fs'
 import { optimize } from 'svgo'
 
-function resolvePath(...paths) {
+const INVALID_FILENAME_PATTERN = /^[$a-zA-Z_][a-zA-Z0-9_-$]*/
+const UNICODE_PATTERN = /^ue[a-z0-9]{3}\-/i
+
+function resolvePath (...paths) {
   return path.resolve(process.cwd(), ...paths)
 }
 
@@ -17,15 +20,32 @@ const post = async (req, res, id, font) => {
   let content = Buffer.from([])
 
   form.on('end', async () => {
-    if (!part) {
+    if(!part) {
       return res.status(500).json({
         success: false
       })
     }
-    
+
+    if(!INVALID_FILENAME_PATTERN.test(part.filename)) {
+      res.status(500).json({
+        success: false,
+        data: 'Unsupported filename'
+      })
+      return
+    }
+
     const next = await saveFile(content, id, part, font)
     if(next) {
-      const filename = part.filename
+      const filename = UNICODE_PATTERN.test(part.filename) ? part.filename.replace(UNICODE_PATTERN, '') : filename
+      
+      if(!INVALID_FILENAME_PATTERN.test(part.filename)) {
+        res.status(500).json({
+          success: false,
+          data: 'Unsupported filename'
+        })
+        return
+      }
+
       const stat = fs.statSync(path.join(dir, filename))
       return res.status(201).json({
         success: true,
@@ -109,7 +129,7 @@ const optimizeSvg = (content) => {
         name: 'removeOpacity',
         type: 'perItem',
         fn: (item) => {
-          if (item.attributes) {
+          if(item.attributes) {
             delete item.attributes.opacity
             item.attributes.style = ''
             item.attributes.fill = 'currentColor'

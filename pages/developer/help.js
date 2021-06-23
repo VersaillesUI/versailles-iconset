@@ -31,7 +31,7 @@ const VUE2_USAGE_EXAMPLE = (data, [item]) => {
 
 function Helper (props) {
   const { current, code, query, assets } = props
-  const script = process.browser && `${window.location.origin}/api/script/${current.data.aliasName}.js?type=${query.type}`
+  const scriptUrl = process.browser && `${window.location.origin}/api/script/${current.data.aliasName}.js?type=${query.type}`
   const usage = {
     vue2: VUE2_USAGE_EXAMPLE,
     react: REACT_USAGE_EXAMPLE
@@ -49,13 +49,13 @@ function Helper (props) {
             <T variant="h5" gutterBottom>开发者帮助文档</T>
             <br />
             <T variant="h6" gutterBottom>1. 下载脚本文件</T>
-            <Paper style={{
-              backgroundColor: '#F4F5F6'
-            }} elevation={0}>
-              <Box padding={2}>
-                <a href={script} target="_blank">{script}</a>
-              </Box>
-            </Paper>
+            <a href={scriptUrl} target="_blank">
+              <Paper style={{
+                backgroundColor: '#F4F5F6'
+              }} elevation={0}>
+                <Box padding={2}>{scriptUrl}</Box>
+              </Paper>
+            </a>
             <br />
             <T variant="h6" gutterBottom>2. 将下载后的资源文件放到项目中的第三方库文件夹下</T>
             <T variant="body1" gutterBottom>例如，将下载的脚本文件放到 src 下的 lib 文件夹， 修改 webpack.config.js</T>
@@ -101,7 +101,7 @@ function Helper (props) {
                       {line.map((token, key) => {
                         const tokenProps = getTokenProps({ token, key })
                         const { style, ..._tokenProps } = tokenProps
-                        return <span style={query.type !== 'react' && style} {..._tokenProps} />
+                        return <span style={query.type !== 'react' ? style : {}} {..._tokenProps} />
                       })}
                     </div>
                   ))}

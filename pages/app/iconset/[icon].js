@@ -553,16 +553,15 @@ function Home (props) {
                   <FormControlLabel value="vue2" control={<Radio size="small" color="primary" />} label="VUE@2" />
                 </Box>
               </RadioGroup>
-              <Paper elevation={0}>
+              <a target="_blank" href={downloadUrl}><Paper elevation={0}>
                 <Box fontFamily="Consolas" padding={1.5} style={{
                   background: `rgba(0, 0, 0, 0.03)`,
                   wordBreak: 'break-all'
                 }}>
-                  <a target="_blank" href={downloadUrl}>
-                    {downloadUrl}
-                  </a>
+                  {downloadUrl}
                 </Box>
               </Paper>
+              </a>
             </Box>
             <br />
             <Box position="absolute" right={24} bottom={24} display="flex" alignItems="flex-end" flexDirection="column">

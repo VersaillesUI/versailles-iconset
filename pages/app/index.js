@@ -9,6 +9,7 @@ import { makeStyles } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import SvgIcon from '@/src/components/SvgIcon'
+import Cookies from 'cookies'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -72,7 +73,7 @@ function Page (props) {
 
   React.useEffect(() => {
     const result = []
-    if(iconsets) {
+    if(Array.isArray(iconsets)) {
       Promise.all(
         iconsets.map((item, index) => {
           return new Promise((resolve) => {
@@ -88,13 +89,13 @@ function Page (props) {
     }
   }, [iconsets])
 
-  return <Layout cookie={cookie} iconset="all" iconsets={props.iconsets}>
+  return <Layout cookie={cookie} iconset={Page.nav || 'all'} iconsets={props.iconsets}>
     <div className={classes.content}>
       <Box display="flex" flexWrap="wrap" height="auto">
         {
           Array.isArray(iconsets) && iconsets.map((item, index) => {
             const nicons = icons[index]
-            return <Card onClick={() => location.href = `/app/${item.aliasName}`} className={classes.card} key={item.id || index}>
+            return <Card onClick={() => location.href = `/app/iconset/${item.aliasName}`} className={classes.card} key={item.id || index}>
               <CardContent className={classes.cardContent}>
                 <Box display="flex" flexWrap="wrap">
                   {
@@ -134,7 +135,7 @@ function Page (props) {
 }
 
 Page.getInitialProps = async ({ req }) => {
-  const iconsets = await axios.get(`http://${req.headers.host}/api/iconsets/query?children=12`).then(res => res.data.data)
+  const iconsets = await axios.get(`http://${req.headers.host}/api/iconsets/query`).then(res => res.data.data)
   return { cookie: req.headers.cookie, iconsets }
 }
 

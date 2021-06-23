@@ -9,7 +9,7 @@ export const serializeRow = (dbrow) => {
       result[replace(key)] = dbrow[key]
     }
   } catch (err) {
-    console.log(err)
+    console.log('serialize row', err)
   }
   return result
 }

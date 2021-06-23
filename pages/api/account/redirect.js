@@ -34,7 +34,6 @@ export default async (req, res) => {
       res.redirect('/')
     })
     .catch((err) => {
-      console.warn(err)
       res.redirect('/')
     })
 }

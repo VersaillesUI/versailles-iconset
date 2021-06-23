@@ -233,8 +233,8 @@ export default function Layout (props) {
             <T variant="body2" className={classes.vtext}>图标集</T>
           </ListSubheader>
           {
-            iconsets.map(item => {
-              return <a href={`/app/${item.aliasName}`} key={item.id}>
+            Array.isArray(iconsets) && iconsets.map(item => {
+              return <a href={`/app/iconset/${item.aliasName}`} key={item.id}>
                 <ListItem
                   selected={iconset && (item.id === iconset.id)}
                   className={classes.listItem}

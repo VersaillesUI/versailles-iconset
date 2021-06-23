@@ -22,7 +22,7 @@ export default (req, res) => {
         return
       }
       const id = row.ID
-      const dir = path.resolve(process.cwd(), 'dir/iconset', id)
+      const dir = path.resolve(process.cwd(), 'dir/iconset', String(id))
       const base = path.resolve(process.cwd(), 'package/templates')
       fs.stat(dir, (err) => {
         if(err) {

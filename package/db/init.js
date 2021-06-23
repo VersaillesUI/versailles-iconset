@@ -9,7 +9,7 @@ function init () {
     }
 
     const CREATE_PROJECT_TABLE = `CREATE TABLE ICONSETS (
-      ID TEXT PRIMARY KEY,
+      ID INTEGER PRIMARY KEY AUTOINCREMENT,
       ICONSET_NAME CHAR(50),
       ALIAS_NAME CHAR(50),
       USER_ID CHAR(50) NOT NULL,
@@ -20,7 +20,7 @@ function init () {
     )`
 
     const CREATE_USER_TABLE = `CREATE TABLE USERS (
-      ID PRIMARY KEY,
+      ID INTEGER PRIMARY KEY AUTOINCREMENT,
       USER_NAME CHAR(50),
       USER_TYPE CHAT(10),
       PASSWORD CHAR(50),
@@ -33,10 +33,11 @@ function init () {
         db.run('DROP TABLE ICONSETS', () => {
           db.run(CREATE_PROJECT_TABLE, (result, err) => {
             if (err) {
-              console.log('create project table error', err)
+              console.log('create projects table error', err)
               reject()
               return
             } else {
+              console.log('create projects table successfully')
               resolve()
             }
           })
@@ -48,10 +49,11 @@ function init () {
       db.run('DROP TABLE USERS', () => {
         db.run(CREATE_USER_TABLE, (result, err) => {
           if (err) {
-            console.log('create user table error')
+            console.error('create users table error')
             reject()
             return
           } else {
+            console.log('create users table successfully')
             resolve()
           }
         })
