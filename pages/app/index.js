@@ -1,5 +1,5 @@
 import React from 'react'
-import Layout from '../src/layout'
+import Layout from '@/src/layout'
 import T from '@material-ui/core/Typography'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -8,7 +8,7 @@ import axios from 'axios'
 import { makeStyles } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import SvgIcon from '../src/components/SvgIcon'
+import SvgIcon from '@/src/components/SvgIcon'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -94,7 +94,7 @@ function Page (props) {
         {
           Array.isArray(iconsets) && iconsets.map((item, index) => {
             const nicons = icons[index]
-            return <Card onClick={() => location.href = `/${item.aliasName}`} className={classes.card} key={item.id}>
+            return <Card onClick={() => location.href = `/app/${item.aliasName}`} className={classes.card} key={item.id}>
               <CardContent className={classes.cardContent}>
                 <Box display="flex" flexWrap="wrap">
                   {

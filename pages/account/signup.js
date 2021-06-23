@@ -2,7 +2,7 @@ import React from 'react'
 import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import FormItem from '../../src/components/FormItem'
+import FormItem from '@/src/components/FormItem'
 import Button from '@material-ui/core/Button'
 import axios from 'axios'
 
@@ -32,6 +32,18 @@ export default function () {
     }
     if (!confirmPassword) {
       setConfirmPasswordError('请输入确认密码')
+      hasError = true
+    }
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('确认密码与新密码不一致')
+      hasError = true
+    }
+    if (!/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(email)) {
+      setEmailError('邮箱地址格式输入不正确')
+      hasError = true
+    }
+    if (password.length < 6) {
+      setPasswordError('密码长度不能少于6位')
       hasError = true
     }
     if (hasError) {

@@ -12,7 +12,7 @@ import Slider from '@material-ui/core/Slider'
 import Divider from '@material-ui/core/Divider'
 import DeleteIcon from '@material-ui/icons/Delete'
 import TextField from '@material-ui/core/TextField'
-import Info from '../src/components/Info'
+import Info from '@/src/components/Info'
 import moment from 'moment'
 import _ from 'lodash'
 import clsx from 'clsx'
@@ -27,12 +27,13 @@ import { saveAs } from 'file-saver'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Layout from '../src/layout'
-import SvgIcon from '../src/components/SvgIcon'
+import Layout from '@/src/layout'
+import SvgIcon from '@/src/components/SvgIcon'
 import Badge from '@material-ui/core/Badge'
 import PaletteIcon from '@material-ui/icons/Palette'
 import Popover from '@material-ui/core/Popover'
 import { SketchPicker } from 'react-color'
+import Link from '@material-ui/core/Link'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -46,7 +47,7 @@ const useStyles = makeStyles((theme) => {
       borderRight: `1px solid ${theme.palette.grey[200]}`
     },
     propertyPanel: {
-      flexBasis: 300,
+      flexBasis: 320,
       flexShrink: 0,
       display: 'flex',
       height: '100%',
@@ -129,7 +130,8 @@ const useStyles = makeStyles((theme) => {
     },
     title: {
       marginBottom: theme.spacing(1.5),
-      display: 'block'
+      display: 'block',
+      flexGrow: 1
     }
   }
 })
@@ -158,6 +160,7 @@ function Home (props) {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [showPalette, setShowPalette] = React.useState(false)
   const [color, setColor] = React.useState((process.browser && sessionStorage.getItem('color')) || defaultColor)
+  const [downloading, setDownloading] = React.useState(false)
 
   useEffect(() => {
     if(iconset) {
@@ -284,7 +287,11 @@ function Home (props) {
   }
 
   const handleGenerateIconFont = () => {
-    axios.get(`/api/parse/svg?id=${iconset.id}&fontName=${iconset.iconsetName}`, {
+    if(downloading) {
+      return
+    }
+    setDownloading(true)
+    axios.get(`/api/parse/svg?id=${iconset.id}&fontName=${iconset.aliasName}`, {
       responseType: 'blob'
     }).then(res => {
       saveAs(res.data, iconset.iconsetName + '.zip')
@@ -294,6 +301,8 @@ function Home (props) {
         message: '下载失败',
         type: 'error'
       })
+    }).finally(() => {
+      setDownloading(false)
     })
   }
 
@@ -384,6 +393,7 @@ function Home (props) {
   }
 
   const iconsetId = iconset && iconset.id
+  const downloadUrl = iconset && process.browser && `${window.location.origin}/api/script/${iconset.aliasName}.js?type=${sourceType}`
   return (
     <Layout cookie={cookie} iconset={iconset} iconsets={iconsets}>
       <div className={classes.content}>
@@ -523,20 +533,26 @@ function Home (props) {
             </Box>
             <br />
             <Box>
-              <T variant="body2" className={classes.title}>脚本资源文件</T>
-              <RadioGroup value={sourceType} onChange={handleChangeSourceType}>
-                <T style={{ color: '#666' }} variant="subtitle2">复制链接，并应用于&lt;script&gt;标签中</T>
+              <Box display="flex" marginBottom={1.5} alignItems="center">
+                <T variant="body2" style={{ flexGrow: 1 }}>脚本资源文件</T>
+                <Link target="_blank" href={`/developer/help?id=${iconset.id}&type=${sourceType}`}>
+                  <T style={{ color: '#666' }} variant="body2">使用帮助</T>
+                </Link>
+              </Box>
+              <RadioGroup size="small" value={sourceType} onChange={handleChangeSourceType}>
                 <Box display="flex">
-                  <FormControlLabel value="react" control={<Radio size="small" color="primary" />} label="React" />
-                  <FormControlLabel value="vue" control={<Radio size="small" color="primary" />} label="Vue" />
+                  <FormControlLabel value="react" control={<Radio size="small" color="primary" />} label="REACT" />
+                  <FormControlLabel value="vue_2" control={<Radio size="small" color="primary" />} label="VUE 2" />
                 </Box>
               </RadioGroup>
               <Paper elevation={0}>
-                <Box fontFamily="Consolas" padding={1} style={{
-                  background: `rgba(0, 0, 0, 0.06)`,
+                <Box fontFamily="Consolas" padding={1.5} style={{
+                  background: `rgba(0, 0, 0, 0.03)`,
                   wordBreak: 'break-all'
                 }}>
-                  {process.browser && `${window.location.origin}/api/iconset/${iconset.aliasName}.min.js?type=${sourceType}`}
+                  <a target="_blank" href={downloadUrl}>
+                    {downloadUrl}
+                  </a>
                 </Box>
               </Paper>
             </Box>
@@ -569,9 +585,7 @@ function Home (props) {
           horizontal: 'center',
         }}
       >
-        <Box p={2}>
-          <SketchPicker color={color} onChange={handleSetColor} />
-        </Box>
+        <SketchPicker color={color} onChange={handleSetColor} />
       </Popover>
     </Layout>
   )

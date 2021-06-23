@@ -1,0 +1,1 @@
+<% _.each(data, function(item, index) { %>import { <%= item.exportName %> } from '@/src/lib/<%= name %>';<%= index < data.length - 1 ? '\r\n' : '' %><% }) %>

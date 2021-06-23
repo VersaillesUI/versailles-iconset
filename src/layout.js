@@ -27,6 +27,7 @@ import CreateProjectModal from '../src/index/CreateProjectModal'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import GithubIcon from '@material-ui/icons/GitHub'
 import Popover from '@material-ui/core/Popover'
+import Link from '@material-ui/core/Link'
 
 const useStyles = makeStyles(theme => {
   return {
@@ -79,12 +80,19 @@ const useStyles = makeStyles(theme => {
       padding: 32,
       backgroundColor: '#fff'
     },
-    github: {
+    login: {
       cursor: 'pointer',
+      transition: '0.2s color',
       color: theme.palette.secondary.main,
       '&:hover': {
         color: theme.palette.primary.main
       }
+    },
+    smallListItem: {
+      padding: '4px 20px'
+    },
+    label: {
+      fontSize: 14
     }
   }
 })
@@ -187,7 +195,7 @@ export default function Layout (props) {
           <ListSubheader className={classes.subHeader}>
             <T variant="body2" className={classes.vtext}>资源列表</T>
           </ListSubheader>
-          <a href="/">
+          <a href="/app">
             <ListItem selected={iconset === 'all'} className={classes.listItem}>
               <ListItemIcon>
                 <AppsIcon />
@@ -197,7 +205,7 @@ export default function Layout (props) {
               </ListItemText>
             </ListItem>
           </a>
-          <a href="/favorites">
+          <a href="/app/favorites">
             <ListItem selected={iconset === 'favorites'} className={classes.listItem}>
               <ListItemIcon>
                 <StarBorderIcon />
@@ -207,7 +215,7 @@ export default function Layout (props) {
               </ListItemText>
             </ListItem>
           </a>
-          <a href="/own">
+          <a href="/app/own">
             <ListItem selected={iconset === 'own'} className={classes.listItem}>
               <ListItemIcon>
                 <FaceIcon />
@@ -222,20 +230,19 @@ export default function Layout (props) {
           </ListSubheader>
           {
             iconsets.map(item => {
-              return <ListItem
-                selected={iconset && (item.id === iconset.id)}
-                onClick={() => {
-                  location.href = item.aliasName
-                }}
-                className={classes.listItem}
-                key={item.id}>
-                <ListItemIcon>
-                  <SettingsEthernetIcon />
-                </ListItemIcon>
-                <ListItemText>
-                  <T variant="body2">{item.iconsetName}</T>
-                </ListItemText>
-              </ListItem>
+              return <a href={`/app/${item.aliasName}`}>
+                <ListItem
+                  selected={iconset && (item.id === iconset.id)}
+                  className={classes.listItem}
+                  key={item.id}>
+                  <ListItemIcon>
+                    <SettingsEthernetIcon />
+                  </ListItemIcon>
+                  <ListItemText>
+                    <T variant="body2">{item.iconsetName}</T>
+                  </ListItemText>
+                </ListItem>
+              </a>
             })
           }
         </List>
@@ -251,11 +258,11 @@ export default function Layout (props) {
           <T>选择快捷方式登录</T>
           <Box display="flex" alignItems="center" justifyContent="center">
             <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column" paddingTop={6}>
-              <GitHubIcon onClick={handleLoginViaGithub} className={classes.github} style={{ fontSize: 60, padding: 5 }}></GitHubIcon>
+              <GitHubIcon onClick={handleLoginViaGithub} className={classes.login} style={{ fontSize: 60, padding: 5 }}></GitHubIcon>
               <T variant="overline" style={{ marginTop: 12, color: '#909090' }}>Github</T>
             </Box>
             <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column" paddingTop={6} marginLeft={3}>
-              <AccountCircleIcon onClick={handleLoginViaAccount} className={classes.github} style={{ fontSize: 60 }}></AccountCircleIcon>
+              <AccountCircleIcon onClick={handleLoginViaAccount} className={classes.login} style={{ fontSize: 60 }}></AccountCircleIcon>
               <T variant="overline" style={{ marginTop: 12, color: '#909090' }}>账号密码</T>
             </Box>
           </Box>
@@ -274,7 +281,18 @@ export default function Layout (props) {
           horizontal: 'center',
         }}
       >
-        <T style={{ padding: '12px 16px' }}>{cookies && cookies.user}</T>
+        <List>
+          <ListItem className={classes.smallListItem}>
+            <ListItemText className={classes.label}>
+              {cookies && cookies.user}
+            </ListItemText>
+          </ListItem>
+          <ListItem className={classes.smallListItem}>
+            <ListItemText>
+              <Link className={classes.label} href="/api/account/logout">退出</Link>
+            </ListItemText>
+          </ListItem>
+        </List>
       </Popover>
     </main>
   </div>

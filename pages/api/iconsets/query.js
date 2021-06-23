@@ -5,13 +5,13 @@ import path from 'path'
 const sqlite3 = require('sqlite3').verbose()
 
 export default (req, res) => {
-  const { name } = req.query
+  const { name, id } = req.query
 
   const db = new sqlite3.Database(path.resolve(process.cwd(), 'dir/database/iconset.db'))
 
   db.serialize(() => {
-    if (name) {
-      db.get(`SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, CREATE_TIME FROM ICONSETS WHERE ALIAS_NAME="${name}"`, (err, row) => {
+    if (name || id) {
+      db.get(`SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, CREATE_TIME FROM ICONSETS WHERE ALIAS_NAME="${name}" OR ID="${id}"`, (err, row) => {
         db.close()
         if(err) {
           res.json({
