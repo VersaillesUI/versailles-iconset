@@ -94,13 +94,13 @@ function Page (props) {
         {
           Array.isArray(iconsets) && iconsets.map((item, index) => {
             const nicons = icons[index]
-            return <Card onClick={() => location.href = `/app/${item.aliasName}`} className={classes.card} key={item.id}>
+            return <Card onClick={() => location.href = `/app/${item.aliasName}`} className={classes.card} key={item.id || index}>
               <CardContent className={classes.cardContent}>
                 <Box display="flex" flexWrap="wrap">
                   {
                     Array.apply(this, { length: 12 }).map((_, next) => {
                       const image = nicons && nicons[next]
-                      return <div key={image && image.file} className={classes.imageItem}>
+                      return <div key={(image && image.file) || next} className={classes.imageItem}>
                         {
                           image && <SvgIcon className={classes.image} content={image.content}></SvgIcon>
                         }

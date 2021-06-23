@@ -2,9 +2,10 @@ import * as uuid from 'uuid'
 import Cookies from 'cookies'
 import { serializeRow } from '../../../package/db/utils'
 import path from 'path'
+import { AuthMap } from '../../../package/index'
 
 const sqlite3 = require('sqlite3').verbose()
-const AUTH_TOKENS = new Map()
+const AUTH_TOKENS = AuthMap.getInstance()
 const crypto = require('crypto')
 
 export default (req, res) => {
@@ -28,16 +29,16 @@ export default (req, res) => {
         row = serializeRow(row)
         const pwd = crypto.createHmac('sha256', password).digest('hex')
         if (row && row.password === pwd) {
-          const newToken = uuid.v4()
-          AUTH_TOKENS.set(userName, newToken)
+          const token = uuid.v4()
+          AUTH_TOKENS.set(row.id, token)
           const cookies = new Cookies(req, res)
-          cookies.set('token', newToken)
+          cookies.set('token', token)
           cookies.set('user', row.userName)
           cookies.set('userId', row.id)
           res.json({
             success: true,
             data: {
-              token: newToken,
+              token: token,
               loginType: 'account',
               userName
             }

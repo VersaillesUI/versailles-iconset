@@ -11,7 +11,7 @@ export default (req, res) => {
 
   db.serialize(() => {
     if (name || id) {
-      db.get(`SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, CREATE_TIME FROM ICONSETS WHERE ALIAS_NAME="${name}" OR ID="${id}"`, (err, row) => {
+      db.get(`SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, USER_ID, CREATE_TIME FROM ICONSETS WHERE ALIAS_NAME="${name}" OR ID="${id}"`, (err, row) => {
         db.close()
         if(err) {
           res.json({
@@ -26,7 +26,7 @@ export default (req, res) => {
         })
       })
     } else {
-      db.all("SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, CREATE_TIME FROM ICONSETS", function (err, rows) {
+      db.all("SELECT ID, ICONSET_NAME, ALIAS_NAME, IS_FONTSET, USER_ID, CREATE_TIME FROM ICONSETS", function (err, rows) {
         db.close()
         if(err) {
           res.json({

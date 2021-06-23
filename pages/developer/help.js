@@ -19,16 +19,17 @@ module.exports = merge(baseConfig, {
   }
 })`
 
-const usageExample = ([item]) => `function Usage () {
-  return <${item.fileName.replace(/-/, '_').replace(/^[a-z]/, match => match.toUpperCase())} />
-}`
+const usageExample = (data, [item]) => {
+  const name = item.fileName.replace(/-/g, '_').replace(/^[a-z]/, match => match.toUpperCase())
+  return `import { ${name} } from '@/src/lib/${data.aliasName}'\r\n\r\nfunction Usage () {\r\n  return <${name} />\r\n}`
+}
 
 function Helper (props) {
   const { current, code, query, assets } = props
   const script = process.browser && `${window.location.origin}/api/script/${current.data.aliasName}.js?type=${query.type}`
   return <>
     <Head>
-      <title>开发手册</title>
+      <title>开发者帮助文档</title>
       <link rel="stylesheet" href="/prism-oka.css"></link>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
     </Head>
@@ -63,7 +64,7 @@ function Helper (props) {
               }}
             </Highlight>
             <br />
-            <T variant="h6" gutterBottom>3. 引用声明的资源</T>
+            <T variant="h6" gutterBottom>3. 按需引用需要依赖的资源（当前展示为全部资源）</T>
             <Highlight code={code} {...defaultProps} language="jsx">
               {({ className, tokens, getLineProps, getTokenProps }) => {
                 return <pre className={className}>
@@ -81,7 +82,7 @@ function Helper (props) {
             </Highlight>
             <br />
             <T variant="h6" gutterBottom>4. 在项目中使用</T>
-            <Highlight code={usageExample(assets.data)} {...defaultProps} language="jsx">
+            <Highlight code={usageExample(current.data, assets.data)} {...defaultProps} language="jsx">
               {({ className, tokens, getLineProps, getTokenProps }) => {
                 return <pre className={className}>
                   {tokens.map((line, i) => (

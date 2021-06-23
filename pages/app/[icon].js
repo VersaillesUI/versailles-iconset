@@ -34,6 +34,7 @@ import PaletteIcon from '@material-ui/icons/Palette'
 import Popover from '@material-ui/core/Popover'
 import { SketchPicker } from 'react-color'
 import Link from '@material-ui/core/Link'
+import Cookie from 'cookie'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -147,6 +148,7 @@ const defaultColor = '#000'
 function Home (props) {
   const { cookie, iconsets: _iconsets, current } = props
   const classes = useStyles()
+  const [cookies] = React.useState(Cookie.parse(cookie || ''))
   const [iconset] = React.useState(current.data)
   const [iconsets] = React.useState(_iconsets.data || [])
   const [sourceType, setSourceType] = React.useState('react')
@@ -392,6 +394,7 @@ function Home (props) {
     sessionStorage.setItem('color', color.hex)
   }
 
+  const isOwner = iconset.userId === cookies.userId
   const iconsetId = iconset && iconset.id
   const downloadUrl = iconset && process.browser && `${window.location.origin}/api/script/${iconset.aliasName}.js?type=${sourceType}`
   return (
@@ -496,16 +499,20 @@ function Home (props) {
           </Box>
           <br />
           <Box position="absolute" right={24} bottom={24} display="flex" alignItems="flex-end" flexDirection="column">
-            <Tooltip title="收藏此图标" aria-label="收藏此图表库">
-              <Fab>
-                <FavoriteBorderIcon />
-              </Fab>
-            </Tooltip>
-            <Tooltip title="删除此文件">
-              <Fab style={{ marginTop: 16 }} onClick={handleDelete}>
-                <DeleteIcon />
-              </Fab>
-            </Tooltip>
+            {
+              !isOwner && <Tooltip title="收藏此图标" aria-label="收藏此图标库">
+                <Fab>
+                  <FavoriteBorderIcon />
+                </Fab>
+              </Tooltip>
+            }
+            {
+              isOwner && <Tooltip title="删除此文件">
+                <Fab style={{ marginTop: 16 }} onClick={handleDelete}>
+                  <DeleteIcon />
+                </Fab>
+              </Tooltip>
+            }
             <Tooltip title="返回上级">
               <Fab style={{ marginTop: 16 }} onClick={handleReturn}>
                 <KeyboardReturnIcon />
@@ -558,8 +565,15 @@ function Home (props) {
             </Box>
             <br />
             <Box position="absolute" right={24} bottom={24} display="flex" alignItems="flex-end" flexDirection="column">
+              {
+                isOwner && <Tooltip title="删除此图标库" aria-label="删除此图标库">
+                  <Fab>
+                    <DeleteIcon />
+                  </Fab>
+                </Tooltip>
+              }
               <Tooltip title="生成字体文件，下载并预览" aria-label="生成字体文件，下载并预览">
-                <Fab onClick={handleGenerateIconFont}>
+                <Fab onClick={handleGenerateIconFont} style={{ marginTop: 16 }}>
                   <GetAppIcon />
                 </Fab>
               </Tooltip>

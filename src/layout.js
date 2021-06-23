@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => {
       overflow: 'hidden'
     },
     nav: {
-      flexBasis: 270,
+      flexBasis: 260,
       background: theme.palette.grey[50],
       height: '100%',
       flexShrink: 0
@@ -205,32 +205,36 @@ export default function Layout (props) {
               </ListItemText>
             </ListItem>
           </a>
-          <a href="/app/favorites">
-            <ListItem selected={iconset === 'favorites'} className={classes.listItem}>
-              <ListItemIcon>
-                <StarBorderIcon />
-              </ListItemIcon>
-              <ListItemText>
-                <T variant="body2">收藏</T>
-              </ListItemText>
-            </ListItem>
-          </a>
-          <a href="/app/own">
-            <ListItem selected={iconset === 'own'} className={classes.listItem}>
-              <ListItemIcon>
-                <FaceIcon />
-              </ListItemIcon>
-              <ListItemText>
-                <T variant="body2">我的</T>
-              </ListItemText>
-            </ListItem>
-          </a>
+          {
+            !!cookies.userId && <a href="/app/favorites">
+              <ListItem selected={iconset === 'favorites'} className={classes.listItem}>
+                <ListItemIcon>
+                  <StarBorderIcon />
+                </ListItemIcon>
+                <ListItemText>
+                  <T variant="body2">收藏</T>
+                </ListItemText>
+              </ListItem>
+            </a>
+          }
+          {
+            !!cookies.userId && <a href="/app/own">
+              <ListItem selected={iconset === 'own'} className={classes.listItem}>
+                <ListItemIcon>
+                  <FaceIcon />
+                </ListItemIcon>
+                <ListItemText>
+                  <T variant="body2">我的</T>
+                </ListItemText>
+              </ListItem>
+            </a>
+          }
           <ListSubheader className={classes.subHeader}>
             <T variant="body2" className={classes.vtext}>图标集</T>
           </ListSubheader>
           {
             iconsets.map(item => {
-              return <a href={`/app/${item.aliasName}`}>
+              return <a href={`/app/${item.aliasName}`} key={item.id}>
                 <ListItem
                   selected={iconset && (item.id === iconset.id)}
                   className={classes.listItem}
