@@ -152,7 +152,7 @@ function Home (props) {
   const [iconset] = React.useState(current.data)
   const [iconsets] = React.useState(_iconsets.data || [])
   const [sourceType, setSourceType] = React.useState('react')
-  const [aliasName] = React.useState(current.data.aliasName)
+  const [aliasName, setAliasName] = React.useState(current.data.aliasName)
   const [images, setImages] = React.useState([])
   const [width, setWidth] = React.useState(40)
   const [image, setImage] = React.useState(null)
@@ -322,7 +322,7 @@ function Home (props) {
           message: '修改成功'
         })
       }).catch(() => {
-        setIconsetName(iconset.aliasName)
+        setAliasName(iconset.aliasName)
         setAlertData({
           open: true,
           message: '修改失败',
@@ -332,7 +332,7 @@ function Home (props) {
   }
 
   const handleChangeIconsetName = (evt) => {
-    setIconsetName(evt.target.value)
+    setAliasName(evt.target.value)
   }
 
   const handleSearchIcon = (evt) => {
@@ -354,6 +354,7 @@ function Home (props) {
     }
     axios.post('/api/iconset/rename', {
       id: iconset.id,
+      file: image.file,
       replace: image.fileName
     })
       .then(() => {
@@ -525,7 +526,7 @@ function Home (props) {
               fullWidth
               label="图标库命名"
               defaultValue=" "
-              value={iconset.iconsetName}
+              value={aliasName}
               className={classes.textField}
               onChange={handleChangeIconsetName}
               onBlur={handleRenameIconset}
@@ -549,7 +550,7 @@ function Home (props) {
               <RadioGroup size="small" value={sourceType} onChange={handleChangeSourceType}>
                 <Box display="flex">
                   <FormControlLabel value="react" control={<Radio size="small" color="primary" />} label="REACT" />
-                  <FormControlLabel value="vue_2" control={<Radio size="small" color="primary" />} label="VUE 2" />
+                  <FormControlLabel value="vue2" control={<Radio size="small" color="primary" />} label="VUE@2" />
                 </Box>
               </RadioGroup>
               <Paper elevation={0}>

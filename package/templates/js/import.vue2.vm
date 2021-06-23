@@ -1,0 +1,8 @@
+import Vue from 'vue'
+import * as Iconset from '@/src/lib/<%= name %>'
+
+Vue.use(Iconset)
+
+/* All types: 
+<% _.each(data, function(item, index) { %> * <%= item.exportName %><%= index < data.length - 1 ? '\r\n' : '' %><% }) %>
+ */

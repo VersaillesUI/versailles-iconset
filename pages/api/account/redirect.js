@@ -2,7 +2,7 @@ import axios from 'axios'
 import Cookies from 'cookies'
 import qs from 'querystring'
 import * as uuid from 'uuid'
-import { AUTH_TOKENS } from '../../../package/index'
+import { AuthMap } from '../../../package/index'
 
 const AUTH_TOKENS = AuthMap.getInstance()
 

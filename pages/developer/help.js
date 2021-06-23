@@ -7,7 +7,7 @@ import T from '@material-ui/core/Typography'
 import axios from 'axios'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 
-const webpackCode = `const path = require('path')
+const WEBPACK_CODE = `const path = require('path')
 const merge = require('webpack-merge')
 const baseConfig = require('./webpack.base.config')
 
@@ -19,14 +19,23 @@ module.exports = merge(baseConfig, {
   }
 })`
 
-const usageExample = (data, [item]) => {
+const REACT_USAGE_EXAMPLE = (data, [item]) => {
   const name = item.fileName.replace(/-/g, '_').replace(/^[a-z]/, match => match.toUpperCase())
   return `import { ${name} } from '@/src/lib/${data.aliasName}'\r\n\r\nfunction Usage () {\r\n  return <${name} />\r\n}`
+}
+
+const VUE2_USAGE_EXAMPLE = (data, [item]) => {
+  const name = item.fileName
+  return `<template>\r\n  <div>\r\n    <${data.aliasName}-icon type="${name}" />\r\n  </div>\r\n</template>`
 }
 
 function Helper (props) {
   const { current, code, query, assets } = props
   const script = process.browser && `${window.location.origin}/api/script/${current.data.aliasName}.js?type=${query.type}`
+  const usage = {
+    vue2: VUE2_USAGE_EXAMPLE,
+    react: REACT_USAGE_EXAMPLE
+  }[query.type]
   return <>
     <Head>
       <title>开发者帮助文档</title>
@@ -40,15 +49,17 @@ function Helper (props) {
             <T variant="h5" gutterBottom>开发者帮助文档</T>
             <br />
             <T variant="h6" gutterBottom>1. 下载脚本文件</T>
-            <Paper variant="outlined" elevation={0}>
+            <Paper style={{
+              backgroundColor: '#F4F5F6'
+            }} elevation={0}>
               <Box padding={2}>
-                <a>{script}</a>
+                <a href={script} target="_blank">{script}</a>
               </Box>
             </Paper>
             <br />
             <T variant="h6" gutterBottom>2. 将下载后的资源文件放到项目中的第三方库文件夹下</T>
             <T variant="body1" gutterBottom>例如，将下载的脚本文件放到 src 下的 lib 文件夹， 修改 webpack.config.js</T>
-            <Highlight code={webpackCode} {...defaultProps} language="js">
+            <Highlight code={WEBPACK_CODE} {...defaultProps} language="js">
               {({ className, tokens, getLineProps, getTokenProps }) => {
                 return <pre className={className}>
                   {tokens.map((line, i) => (
@@ -82,7 +93,7 @@ function Helper (props) {
             </Highlight>
             <br />
             <T variant="h6" gutterBottom>4. 在项目中使用</T>
-            <Highlight code={usageExample(current.data, assets.data)} {...defaultProps} language="jsx">
+            <Highlight code={usage(current.data, assets.data)} {...defaultProps} language={query.type !== 'react' ? 'html' : 'jsx'}>
               {({ className, tokens, getLineProps, getTokenProps }) => {
                 return <pre className={className}>
                   {tokens.map((line, i) => (
@@ -90,7 +101,7 @@ function Helper (props) {
                       {line.map((token, key) => {
                         const tokenProps = getTokenProps({ token, key })
                         const { style, ..._tokenProps } = tokenProps
-                        return <span {..._tokenProps} />
+                        return <span style={query.type !== 'react' && style} {..._tokenProps} />
                       })}
                     </div>
                   ))}
@@ -105,9 +116,10 @@ function Helper (props) {
 }
 
 Helper.getInitialProps = async (ctx) => {
+  const { query } = ctx
   const current = await axios.get(`http://${ctx.req.headers.host}/api/iconsets/query?id=${ctx.query.id}`).then(res => res.data)
   const assets = await axios.get(`http://${ctx.req.headers.host}/api/iconset/query?id=${ctx.query.id}&limit=1`).then(res => res.data)
-  const code = await axios.get(`http://${ctx.req.headers.host}/api/script/import?name=${current.data.aliasName}`).then(res => res.data)
+  const code = await axios.get(`http://${ctx.req.headers.host}/api/script/import?name=${current.data.aliasName}&type=${query.type}`).then(res => res.data)
   return {
     current,
     code,

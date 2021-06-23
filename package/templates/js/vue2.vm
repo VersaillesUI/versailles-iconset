@@ -1,0 +1,31 @@
+const assets = {}
+
+<% _.each(data, function(item) { %>
+assets["<%= item.exportName %>"] = `<%=item.content %>`
+<% }) %>
+
+const component = {
+  name: "<%= name %>-icon",
+  props: {
+    type: {
+      required: true,
+      type: String
+    }
+  },
+  render (h) {
+    return h('span', {
+      style: {
+        display: 'inline-flex'
+      },
+      domProps: {
+        innerHTML: assets[this.type]
+      }
+    })
+  }
+}
+
+component.install = function (Vue) {
+  Vue.component("<%= name %>-icon", component)
+}
+
+export default component

@@ -45,7 +45,7 @@ export default (req, res) => {
             if (stat.isFile()) {
               const content = fs.readFileSync(filePath).toString('utf-8')
               const filename = file.replace(/\.[a-z0-9_-]*$/, '')
-              const exportName = filename.replace(/^[a-z]/, match => match.toUpperCase()).replace(/\-/g, '_')
+              const exportName = type !== 'react' ? filename : filename.replace(/^[a-z]/, match => match.toUpperCase()).replace(/\-/g, '_')
               return {
                 exportName,
                 content
@@ -55,7 +55,7 @@ export default (req, res) => {
           }).filter(o => o)
 
           Gulp
-            .src(['package/templates/js/import.vm'], { base: base })
+            .src([`package/templates/js/import.${type}.vm`], { base: base })
             .pipe(plumber())
             .pipe(consolidate('lodash', {
               data,
