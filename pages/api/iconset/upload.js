@@ -3,7 +3,7 @@ import formidable from 'formidable'
 import fs from 'fs'
 import { optimize } from 'svgo'
 
-const INVALID_FILENAME_PATTERN = /^[$a-zA-Z_][a-zA-Z0-9_-$]*/
+const INVALID_FILENAME_PATTERN = /^[A-Za-z_\$][A-Za-z0-9_\-\$]*/
 const UNICODE_PATTERN = /^ue[a-z0-9]{3}\-/i
 
 function resolvePath (...paths) {
