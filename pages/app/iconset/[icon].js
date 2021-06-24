@@ -35,6 +35,7 @@ import Popover from '@material-ui/core/Popover'
 import { SketchPicker } from 'react-color'
 import Link from '@material-ui/core/Link'
 import Cookie from 'cookie'
+import SettingsIcon from '@material-ui/icons/Settings'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -421,19 +422,21 @@ function Home (props) {
                     <PaletteIcon />
                   </IconButton>
                 }
-                <Upload
-                  onStart={handleUploadStart}
-                  onError={handleUploadError}
-                  onSuccess={handleUploadSuccess}
-                  multiple
-                  action={`/api/iconset/upload?id=${iconsetId}&font=${iconset.isFontset}`}
-                  accept={iconset.isFontset ? 'image/svg+xml' : 'image/svg+xml, image/png, image/jpg, image/bmp, image/gif'}>
-                  <Tooltip title="上传到此图标库" aria-label="上传">
-                    <IconButton color="primary">
-                      <BackupIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Upload>
+                {
+                  isOwner && <Upload
+                    onStart={handleUploadStart}
+                    onError={handleUploadError}
+                    onSuccess={handleUploadSuccess}
+                    multiple
+                    action={`/api/iconset/upload?id=${iconsetId}&font=${iconset.isFontset}`}
+                    accept={iconset.isFontset ? 'image/svg+xml' : 'image/svg+xml, image/png, image/jpg, image/bmp, image/gif'}>
+                    <Tooltip title="上传到此图标库" aria-label="上传">
+                      <IconButton color="primary">
+                        <BackupIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Upload>
+                }
               </Box>
             </Box>
           </Paper>
@@ -566,8 +569,15 @@ function Home (props) {
             <br />
             <Box position="absolute" right={24} bottom={24} display="flex" alignItems="flex-end" flexDirection="column">
               {
+                isOwner && <Tooltip title="配置管理" aria-label="配置管理">
+                  <Fab href={`/app/iconset/settings?id=${iconset.id}`}>
+                    <SettingsIcon />
+                  </Fab>
+                </Tooltip>
+              }
+              {
                 isOwner && <Tooltip title="删除此图标库" aria-label="删除此图标库">
-                  <Fab>
+                  <Fab style={{ marginTop: 16 }}>
                     <DeleteIcon />
                   </Fab>
                 </Tooltip>

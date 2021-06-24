@@ -1,14 +1,28 @@
 const sqlite3 = require('sqlite3').verbose()
 const path = require('path')
+const fs = require('fs')
 
 function init () {
+  // create dir folder
+  const dir = path.resolve(process.cwd(), 'dir')
+  const dirStat = fs.statSync(dir)
+  if (!dirStat) {
+    fs.mkdir(dir)
+  }
+  // create iconset.db file
+  const databaseFile = path.resolve(dir, 'iconset.db')
+  const dbfStat = fs.statSync(databaseFile)
+  if (!dbfStat) {
+    fs.writeFileSync(databaseFile)
+  }
+
   const db = new sqlite3.Database(path.resolve(process.cwd(), 'dir/database/iconset.db'), sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
       console.log(err)
       return
     }
 
-    const CREATE_PROJECT_TABLE = `CREATE TABLE ICONSETS (
+    const CREATE_ICONSETS_TABLE = `CREATE TABLE ICONSETS (
       ID INTEGER PRIMARY KEY AUTOINCREMENT,
       ICONSET_NAME CHAR(50),
       ALIAS_NAME CHAR(50),
@@ -28,10 +42,18 @@ function init () {
       JOIN_TIME BIGINT
     )`
 
+    // create iconsets and user relation table sql
+    const CREATE_ICONSETS_USER_TABLE = `CREATE TABLE IU_RELATION (
+      ICONSET_ID INTEGER,
+      USER_ID INTEGER,
+      ROLE_TYPE,
+      JOIN_TIME
+    )`
+
     const createProjectTable = new Promise((resolve, reject) => {
       db.serialize(function() {
         db.run('DROP TABLE ICONSETS', () => {
-          db.run(CREATE_PROJECT_TABLE, (result, err) => {
+          db.run(CREATE_ICONSETS_TABLE, (result, err) => {
             if (err) {
               console.log('create projects table error', err)
               reject()
@@ -60,7 +82,22 @@ function init () {
       })
     })
 
-    Promise.all([createProjectTable, createUserTable]).then(() => {
+    const createIURTable = new Promise((resolve, reject) => {
+      db.run('DROP TABLE IU_RELATION', () => {
+        db.run(CREATE_ICONSETS_USER_TABLE, (result, err) => {
+          if (err) {
+            console.error('create iu_relation table error')
+            reject()
+            return
+          } else {
+            console.log('create iu_relation table successfully')
+            resolve()
+          }
+        })
+      })
+    })
+
+    Promise.all([createProjectTable, createUserTable, createIURTable]).then(() => {
       db.close()
     }).catch(() => {
       db.close()

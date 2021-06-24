@@ -1,4 +1,4 @@
-import { serializeRow } from '../../../package/db/utils'
+import { serializeRow } from '@/package/db/utils'
 import fs from 'fs'
 import path from 'path'
 
