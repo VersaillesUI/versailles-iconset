@@ -7,7 +7,6 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import Switch from '@material-ui/core/Switch'
-import axios from 'axios'
 
 const useStyles = makeStyles(theme => {
   return {

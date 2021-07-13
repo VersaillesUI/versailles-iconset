@@ -21,10 +21,15 @@ export default (req, res) => {
       }
       const base = path.resolve(process.cwd(), 'dir/iconset')
       fs.stat(base, err => {
-        if (err) {
+        if(err) {
           fs.mkdirSync(base)
         }
-        fs.mkdirSync(path.resolve(base, String(this.lastID)))
+        const dir = path.resolve(base, String(this.lastID))
+        fs.stat(dir, (err) => {
+          if(err) {
+            fs.mkdirSync(dir)
+          }
+        })
       })
       res.json({
         success: true,

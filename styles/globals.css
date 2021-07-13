@@ -1,3 +1,10 @@
+@font-face {
+  font-family: '华文细黑1';
+  src: url('/fonts/STXIHEI.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+
 html,
 body {
   height: 100%;

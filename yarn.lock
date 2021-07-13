@@ -1024,6 +1024,11 @@
   resolved "https://registry.npm.taobao.org/@hapi/hoek/download/@hapi/hoek-9.2.0.tgz?cache=0&sync_timestamp=1618694423634&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40hapi%2Fhoek%2Fdownload%2F%40hapi%2Fhoek-9.2.0.tgz#f3933a44e365864f4dad5db94158106d511e8131"
   integrity sha1-85M6RONlhk9NrV25QVgQbVEegTE=
 
+"@hirohe/react-watermark@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.nlark.com/@hirohe/react-watermark/download/@hirohe/react-watermark-0.2.0.tgz#cea54070ed4b17a5b706a107b300c9f5a28100f3"
+  integrity sha1-zqVAcO1LF6W3BqEHswDJ9aKBAPM=
+
 "@icons/material@^0.2.4":
   version "0.2.4"
   resolved "https://registry.npm.taobao.org/@icons/material/download/@icons/material-0.2.4.tgz#e90c9f71768b3736e76d7dd6783fc6c2afa88bc8"

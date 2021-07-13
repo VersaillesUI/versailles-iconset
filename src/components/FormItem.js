@@ -1,5 +1,5 @@
 import React from 'react'
-import { makeStyles, withStyles, createStyles } from '@material-ui/core'
+import { withStyles, createStyles } from '@material-ui/core'
 import FormControl from '@material-ui/core/FormControl'
 import InputBase from '@material-ui/core/InputBase'
 
@@ -41,22 +41,8 @@ const BootstrapInput = error => withStyles((theme) =>
   }),
 )(InputBase)
 
-const useStyles = makeStyles(() => {
-  return {
-    error: {
-      'input': {
-        borderColor: '#e00',
-        '&:focus': {
-          borderColor: '#e00'
-        }
-      }
-    }
-  }
-})
-
-export default function Input (props) {
-  const classes = useStyles()
-  const { label, direction = 'ver', fullWidth, ..._props } = props
+function Input (props, ref) {
+  const { label, className, direction = 'ver', fullWidth, ..._props } = props
   const [Component, setComponent] = React.useState(BootstrapInput(props.error))
   const map = {
     'hoz': 'row',
@@ -68,18 +54,20 @@ export default function Input (props) {
   }, [props.error])
 
   return (
-    <FormControl style={{
-      flexDirection: map[direction],
-      alignItems: direction === 'hoz' ? 'center' : 'flex-start',
-    }} fullWidth={props.fullWidth}>
+    <FormControl
+      style={{
+        flexDirection: map[direction],
+        alignItems: direction === 'hoz' ? 'center' : 'flex-start',
+      }}
+      fullWidth={props.fullWidth}>
       <label style={{
         fontSize: 13,
         marginRight: direction === 'hoz' ? 4 : 0
       }}>{props.label}</label>
       {
-        props.children || <Component className={true && classes.error} {..._props} />
+        props.children || <Component ref={ref} className={className} {..._props} />
       }
-      <div style={{ 
+      <div style={{
         color: '#e00',
         marginTop: 4,
         fontSize: 13,
@@ -88,3 +76,5 @@ export default function Input (props) {
     </FormControl>
   )
 }
+
+export default React.forwardRef(Input)

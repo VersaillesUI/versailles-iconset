@@ -6,6 +6,9 @@ import Box from '@material-ui/core/Box'
 import T from '@material-ui/core/Typography'
 import axios from 'axios'
 import Highlight, { defaultProps } from 'prism-react-renderer'
+import Logo from '@/src/components/Logo'
+import Divider from '@material-ui/core/Divider'
+import { Watermark } from '@hirohe/react-watermark'
 
 const WEBPACK_CODE = `const path = require('path')
 const merge = require('webpack-merge')
@@ -44,72 +47,74 @@ function Helper (props) {
     </Head>
     <div style={{ background: '#F6F7F8', height: '100vh', overflow: 'auto' }}>
       <Container maxWidth="md" style={{ padding: 16 }}>
-        <Paper elevation={0} square>
-          <Box padding={4}>
-            <T variant="h5" gutterBottom>开发者帮助文档</T>
-            <br />
-            <T variant="h6" gutterBottom>1. 下载脚本文件</T>
-            <a href={scriptUrl} target="_blank">
-              <Paper style={{
-                backgroundColor: '#F4F5F6'
-              }} elevation={0}>
-                <Box padding={2}>{scriptUrl}</Box>
-              </Paper>
-            </a>
-            <br />
-            <T variant="h6" gutterBottom>2. 将下载后的资源文件放到项目中的第三方库文件夹下</T>
-            <T variant="body1" gutterBottom>例如，将下载的脚本文件放到 src 下的 lib 文件夹， 修改 webpack.config.js</T>
-            <Highlight code={WEBPACK_CODE} {...defaultProps} language="js">
-              {({ className, tokens, getLineProps, getTokenProps }) => {
-                return <pre className={className}>
-                  {tokens.map((line, i) => (
-                    <div {...getLineProps({ line, key: i })}>
-                      {line.map((token, key) => {
-                        const tokenProps = getTokenProps({ token, key })
-                        const { style, ..._tokenProps } = tokenProps
-                        return <span {..._tokenProps} />
-                      })}
-                    </div>
-                  ))}
-                </pre>
-              }}
-            </Highlight>
-            <br />
-            <T variant="h6" gutterBottom>3. 按需引用需要依赖的资源（当前展示为全部资源）</T>
-            <Highlight code={code} {...defaultProps} language="jsx">
-              {({ className, tokens, getLineProps, getTokenProps }) => {
-                return <pre className={className}>
-                  {tokens.map((line, i) => (
-                    <div {...getLineProps({ line, key: i })}>
-                      {line.map((token, key) => {
-                        const tokenProps = getTokenProps({ token, key })
-                        const { style, ..._tokenProps } = tokenProps
-                        return <span {..._tokenProps} />
-                      })}
-                    </div>
-                  ))}
-                </pre>
-              }}
-            </Highlight>
-            <br />
-            <T variant="h6" gutterBottom>4. 在项目中使用</T>
-            <Highlight code={usage(current.data, assets.data)} {...defaultProps} language={query.type !== 'react' ? 'html' : 'jsx'}>
-              {({ className, tokens, getLineProps, getTokenProps }) => {
-                return <pre className={className}>
-                  {tokens.map((line, i) => (
-                    <div {...getLineProps({ line, key: i })}>
-                      {line.map((token, key) => {
-                        const tokenProps = getTokenProps({ token, key })
-                        const { style, ..._tokenProps } = tokenProps
-                        return <span style={query.type !== 'react' ? style : {}} {..._tokenProps} />
-                      })}
-                    </div>
-                  ))}
-                </pre>
-              }}
-            </Highlight>
-          </Box>
-        </Paper>
+        <Watermark fontFamily="华文细黑" textColor="rgba(0, 0, 0, 0.4)" textSize={20} text="华宇图标库">
+          <Paper elevation={0} square>
+            <Box padding={4}>
+              <T variant="h5" gutterBottom>开发者帮助文档</T>
+              <br />
+              <T variant="h6" gutterBottom>1. 下载脚本文件</T>
+              <a href={scriptUrl} target="_blank">
+                <Paper style={{
+                  backgroundColor: '#F4F5F6'
+                }} elevation={0}>
+                  <Box padding={2}>{scriptUrl}</Box>
+                </Paper>
+              </a>
+              <br />
+              <T variant="h6" gutterBottom>2. 将下载后的资源文件放到项目中的第三方库文件夹下</T>
+              <T variant="body1" gutterBottom>例如，将下载的脚本文件放到 src 下的 lib 文件夹， 修改 webpack.config.js</T>
+              <Highlight code={WEBPACK_CODE} {...defaultProps} language="js">
+                {({ className, tokens, getLineProps, getTokenProps }) => {
+                  return <pre className={className}>
+                    {tokens.map((line, i) => (
+                      <div {...getLineProps({ line, key: i })}>
+                        {line.map((token, key) => {
+                          const tokenProps = getTokenProps({ token, key })
+                          const { style, ..._tokenProps } = tokenProps
+                          return <span {..._tokenProps} />
+                        })}
+                      </div>
+                    ))}
+                  </pre>
+                }}
+              </Highlight>
+              <br />
+              <T variant="h6" gutterBottom>3. 按需引用需要依赖的资源（当前展示为全部资源）</T>
+              <Highlight code={code} {...defaultProps} language="jsx">
+                {({ className, tokens, getLineProps, getTokenProps }) => {
+                  return <pre className={className}>
+                    {tokens.map((line, i) => (
+                      <div {...getLineProps({ line, key: i })}>
+                        {line.map((token, key) => {
+                          const tokenProps = getTokenProps({ token, key })
+                          const { style, ..._tokenProps } = tokenProps
+                          return <span {..._tokenProps} />
+                        })}
+                      </div>
+                    ))}
+                  </pre>
+                }}
+              </Highlight>
+              <br />
+              <T variant="h6" gutterBottom>4. 在项目中使用</T>
+              <Highlight code={usage(current.data, assets.data)} {...defaultProps} language={query.type !== 'react' ? 'html' : 'jsx'}>
+                {({ className, tokens, getLineProps, getTokenProps }) => {
+                  return <pre className={className}>
+                    {tokens.map((line, i) => (
+                      <div {...getLineProps({ line, key: i })}>
+                        {line.map((token, key) => {
+                          const tokenProps = getTokenProps({ token, key })
+                          const { style, ..._tokenProps } = tokenProps
+                          return <span style={query.type !== 'react' ? style : {}} {..._tokenProps} />
+                        })}
+                      </div>
+                    ))}
+                  </pre>
+                }}
+              </Highlight>
+            </Box>
+          </Paper>
+        </Watermark>
       </Container>
     </div>
   </>

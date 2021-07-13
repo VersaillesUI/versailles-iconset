@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react'
+import React from 'react'
+import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import AppsIcon from '@material-ui/icons/Apps'
-import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet'
+import Button from '@material-ui/core/Button'
 import T from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import ListSubheader from '@material-ui/core/ListSubheader'
@@ -19,7 +20,6 @@ import Cookie from 'cookie'
 import FaceIcon from '@material-ui/icons/Face'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import AppBar from '@material-ui/core/AppBar'
-import BeachAccessIcon from '@material-ui/icons/BeachAccess'
 import Box from '@material-ui/core/Box'
 import IconButton from '@material-ui/core/IconButton'
 import AddBox from '@material-ui/icons/AddBox'
@@ -28,6 +28,21 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import GithubIcon from '@material-ui/icons/GitHub'
 import Popover from '@material-ui/core/Popover'
 import Link from '@material-ui/core/Link'
+import Logo from './components/Logo'
+import FormatColorTextIcon from '@material-ui/icons/FormatColorText'
+import PanoramaIcon from '@material-ui/icons/Panorama'
+
+const Navs = [
+  {
+    label: '图标库',
+    name: 'collections',
+    link: '/collections',
+  }, {
+    label: '插画库',
+    name: 'illustrations',
+    link: '/illustrations'
+  }
+]
 
 const useStyles = makeStyles(theme => {
   return {
@@ -36,14 +51,20 @@ const useStyles = makeStyles(theme => {
       height: `calc(100vh - 64px)`,
       overflow: 'hidden'
     },
+    logo: {
+      display: 'inline-flex'
+    },
     nav: {
-      flexBasis: 260,
+      flexBasis: 210,
       background: theme.palette.grey[50],
       height: '100%',
       flexShrink: 0
     },
     vtext: {
       color: theme.palette.grey[500]
+    },
+    title: {
+      letterSpacing: '0.1em'
     },
     content: {
       position: 'relative',
@@ -93,25 +114,30 @@ const useStyles = makeStyles(theme => {
     },
     label: {
       fontSize: 14
+    },
+    navItem: {
+      fontSize: '16px'
+    },
+    topNavItem: {
+      color: theme.palette.grey[600],
+      fontSize: 18
+    },
+    selectedNav: {
+      color: theme.palette.grey[50]
     }
   }
 })
 
 export default function Layout (props) {
-  const { cookie, iconset } = props
+  const { target: name, cookie, iconset, iconsets: _iconsets, nav } = props.appData
   const [showUser, setShowUser] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [iconsets = [], setIconsets] = React.useState(props.iconsets)
+  const [iconsets = [], setIconsets] = React.useState(_iconsets)
   const [showLogin, setShowLogin] = React.useState(false)
   const [cookies] = React.useState(Cookie.parse(cookie || ''))
   const [fetched, setFetched] = React.useState(false)
+  const [rootPath, setRootPath] = React.useState('')
   const classes = useStyles()
-
-  useEffect(() => {
-    if(!iconsets || iconsets.length === 0) {
-      fetchIconsets()
-    }
-  }, [iconsets])
 
   const handleLoginViaGithub = () => {
     location.href = '/api/account/login?type=github'
@@ -121,17 +147,26 @@ export default function Layout (props) {
     setShowLogin(false)
   }
 
-  const fetchIconsets = () => {
-    if(!fetched) {
-      axios.get('/api/iconsets/query')
+  React.useEffect(() => {
+    if(process.browser) {
+      const paths = location.pathname.split('/')
+      setRootPath(paths[1])
+    }
+  })
+
+  const fetchIconsets = (force) => {
+    if(!fetched || force) {
+      setFetched(true)
+      return axios.get('/api/iconsets/all')
         .then(res => res.data)
         .then(res => {
           if(res.data) {
             setIconsets(res.data)
+            return res.data
           }
         })
-      setFetched(true)
     }
+    return Promise.reject()
   }
 
   const handleCreateIconset = (requestData) => {
@@ -143,7 +178,9 @@ export default function Layout (props) {
       ...requestData,
       userId: cookies.userId
     }).then(() => {
-      fetchIconsets()
+      fetchIconsets(true).then(res => {
+        props.onCreated && props.onCreated(res)
+      })
     })
   }
 
@@ -171,10 +208,20 @@ export default function Layout (props) {
   return <div>
     <AppBar elevation={0}>
       <Toolbar>
-        <BeachAccessIcon style={{ fontSize: 25 }} />
-        &nbsp;&nbsp;
-        <T variant="h6">华宇图标库</T>
-        <Box flexGrow={1} />
+        <Link className={classes.logo} href="/app">
+          <Logo />
+        </Link>
+        <Box flexGrow={1} display="flex" alignItems="center" marginLeft={12} paddingTop={0.3}>
+          {
+            Navs.map((o, index) => {
+              return <Button
+                key={index}
+                href={o.link}
+                className={clsx([rootPath === o.name && classes.selectedNav, classes.topNavItem])}
+                size="large">{o.label}</Button>
+            })
+          }
+        </Box>
         <IconButton onClick={handleRedirectGithub} color="secondary">
           <GithubIcon style={{ padding: 1 }} />
         </IconButton>
@@ -195,36 +242,36 @@ export default function Layout (props) {
           <ListSubheader className={classes.subHeader}>
             <T variant="body2" className={classes.vtext}>资源列表</T>
           </ListSubheader>
-          <a href="/app">
-            <ListItem selected={iconset === 'all'} className={classes.listItem}>
+          <a href={`/${name}`}>
+            <ListItem selected={nav === 'all'} className={classes.listItem}>
               <ListItemIcon>
                 <AppsIcon />
               </ListItemIcon>
               <ListItemText>
-                <T variant="body2">全部</T>
+                <div className={classes.navItem}>全部</div>
               </ListItemText>
             </ListItem>
           </a>
           {
-            !!cookies.userId && <a href="/app/favorites">
-              <ListItem selected={iconset === 'favorites'} className={classes.listItem}>
+            !!cookies.userId && <a href={`/${name}/favorites`}>
+              <ListItem selected={nav === 'favorites'} className={classes.listItem}>
                 <ListItemIcon>
                   <StarBorderIcon />
                 </ListItemIcon>
                 <ListItemText>
-                  <T variant="body2">收藏</T>
+                  <div className={classes.navItem}>收藏</div>
                 </ListItemText>
               </ListItem>
             </a>
           }
           {
-            !!cookies.userId && <a href="/app/own">
-              <ListItem selected={iconset === 'own'} className={classes.listItem}>
+            !!cookies.userId && <a href={`/${name}/own`}>
+              <ListItem selected={nav === 'own'} className={classes.listItem}>
                 <ListItemIcon>
                   <FaceIcon />
                 </ListItemIcon>
                 <ListItemText>
-                  <T variant="body2">我的</T>
+                  <div className={classes.navItem}>我的</div>
                 </ListItemText>
               </ListItem>
             </a>
@@ -234,16 +281,18 @@ export default function Layout (props) {
           </ListSubheader>
           {
             Array.isArray(iconsets) && iconsets.map(item => {
-              return <a href={`/app/iconset/${item.aliasName}`} key={item.id}>
+              return <a href={`/${name}/view/${item.id}`} key={item.id}>
                 <ListItem
                   selected={iconset && (item.id === iconset.id)}
                   className={classes.listItem}
                   key={item.id}>
                   <ListItemIcon>
-                    <SettingsEthernetIcon />
+                    {
+                      item.isFontset ? <FormatColorTextIcon /> : <PanoramaIcon />
+                    }
                   </ListItemIcon>
                   <ListItemText>
-                    <T variant="body2">{item.iconsetName}</T>
+                    <div className={classes.navItem}>{item.iconsetName}</div>
                   </ListItemText>
                 </ListItem>
               </a>

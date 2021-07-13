@@ -8,7 +8,7 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/app',
+        destination: '/collections',
         permanent: true
       }
     ]

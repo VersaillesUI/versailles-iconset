@@ -5,13 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port=80",
     "serve": "node main.js",
     "init:db": "node package/db/init.js",
+    "update:db": "node package/db/update.js",
     "opt:svg": "svgo -f ./dir/iconset/cced92da-6c17-4aaf-8414-5ec12430ff1e ./dir/iconset/opt"
   },
   "dependencies": {
     "@babel/register": "^7.14.5",
+    "@hirohe/react-watermark": "^0.2.0",
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",

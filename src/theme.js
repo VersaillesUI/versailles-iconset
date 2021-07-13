@@ -5,7 +5,7 @@ import { red } from '@material-ui/core/colors'
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#556cd6',
+      main: '#20232a',
     },
     secondary: {
       main: '#bbdefb',
@@ -15,7 +15,7 @@ const theme = createMuiTheme({
     },
     background: {
       default: '#fff',
-    },
+    }
   },
   overrides: {
     MuiBadge: {
@@ -26,6 +26,12 @@ const theme = createMuiTheme({
     MuiListItemIcon: {
       root: {
         minWidth: 36
+      }
+    },
+    MuiToolbar: {
+      regular: {
+        paddingLeft: 16,
+        paddingRight: 16
       }
     }
   }

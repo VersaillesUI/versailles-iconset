@@ -7,10 +7,15 @@ import Button from '@material-ui/core/Button'
 import T from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
 import axios from 'axios'
+import Snackbar from '@material-ui/core/Snackbar'
+import Alert from '@material-ui/lab/Alert'
 
 export default function () {
   const [userName, setUserName] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [alertData, setAlertData] = React.useState({
+    open: false
+  })
   const handleLogin = () => {
     axios.post('/api/account/login?type=account', {
       userName,
@@ -22,12 +27,25 @@ export default function () {
           location.href = '/'
         }
       })
+      .catch(() => {
+        setAlertData({
+          open: true,
+          message: '注册失败',
+          type: 'error'
+        })
+      })
   }
 
   const handleChange = (set) => {
     return (evt) => {
       set(evt.target.value)
     }
+  }
+
+  const handleCloseSnackbar = () => {
+    setAlertData({
+      open: false
+    })
   }
 
   return <Box width={320} margin="40px auto">
@@ -59,5 +77,10 @@ export default function () {
         <Button href="/account/signup" fullWidth>创建账户</Button>
       </Box>
     </Paper>
+    <Snackbar open={alertData.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
+      <Alert severity={alertData.type || 'success'} onClose={handleCloseSnackbar}>
+        {alertData.message}
+      </Alert>
+    </Snackbar>
   </Box>
 }

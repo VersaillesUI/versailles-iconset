@@ -26,45 +26,40 @@ const post = async (req, res, id, font) => {
       })
     }
 
-    if(!INVALID_FILENAME_PATTERN.test(part.filename)) {
+    try {
+      const filename = await saveFile(content, id, part, font)
+      const file = path.resolve(dir, filename)
+
+      fs.stat(file, (err, stat) => {
+        if(err) {
+          res.status(500).json({
+            success: false,
+            data: err
+          })
+          return
+        }
+
+        res.status(201).json({
+          success: true,
+          data: {
+            file: filename,
+            fileName: filename.replace(/\.[a-z0-9_-]*$/, ''),
+            ext: path.extname(filename),
+            content: fs.readFileSync(file).toString('utf-8'),
+            stat: {
+              size: stat.size,
+              atime: stat.atime,
+              ctime: stat.ctime
+            }
+          }
+        })
+      })
+    } catch(err) {
       res.status(500).json({
         success: false,
-        data: 'Unsupported filename'
-      })
-      return
-    }
-
-    const next = await saveFile(content, id, part, font)
-    if(next) {
-      const filename = UNICODE_PATTERN.test(part.filename) ? part.filename.replace(UNICODE_PATTERN, '') : filename
-      
-      if(!INVALID_FILENAME_PATTERN.test(part.filename)) {
-        res.status(500).json({
-          success: false,
-          data: 'Unsupported filename'
-        })
-        return
-      }
-
-      const stat = fs.statSync(path.join(dir, filename))
-      return res.status(201).json({
-        success: true,
-        data: {
-          file: filename,
-          fileName: filename.replace(/\.[a-z0-9_-]*$/, ''),
-          ext: path.extname(filename),
-          content: fs.readFileSync(path.join(dir, filename)).toString('utf-8'),
-          stat: {
-            size: stat.size,
-            atime: stat.atime,
-            ctime: stat.ctime
-          }
-        }
+        data: err
       })
     }
-    res.status(500).json({
-      success: false
-    })
   })
 
   form.on('error', (err) => {
@@ -142,29 +137,48 @@ const optimizeSvg = (content) => {
 
 const saveFile = async (content, id, part, font) => {
   try {
-    const data = font === '1' ? Buffer.from(optimizeSvg(content.toString('utf-8'))) : content
+    const isFont = font === '1'
     const dir = resolvePath('dir/iconset', id)
-    const filename = part.filename
 
-    return new Promise((resolve, reject) => {
+    let data = content
+    let filename = part.filename
+
+    if(isFont) {
+      data = Buffer.from(optimizeSvg(content.toString('utf-8')).data)
+      filename = UNICODE_PATTERN.test(part.filename) ? part.filename.replace(UNICODE_PATTERN, '') : part.filename
+      if(!INVALID_FILENAME_PATTERN.test(filename)) {
+        return Promise.reject(new Error('Unsupported filename'))
+      }
+
+      if(!INVALID_FILENAME_PATTERN.test(filename)) {
+        res.status(500).json({
+          success: false,
+          data: 'Unsupported filename'
+        })
+        return
+      }
+    }
+
+    return new Promise((resolve) => {
       fs.stat(dir, (err) => {
         if(err) {
           fs.mkdir(dir, (err) => {
             if(err) {
-              reject(new Error('mkdir error'))
-              return
+              throw new Error('mkdir error')
             }
-            fs.writeFileSync(path.join(dir, filename), data)
-            resolve(true)
+            const file = path.join(dir, filename)
+            fs.writeFileSync(file, data)
+            resolve(filename)
           })
           return
         }
-        fs.writeFileSync(path.join(dir, filename), data)
-        resolve(true)
+        const file = path.join(dir, filename)
+        fs.writeFileSync(file, data)
+        resolve(filename)
       })
     })
   } catch(err) {
-    return Promise.resolve(false)
+    return Promise.reject(new Error(err))
   }
 }
 
